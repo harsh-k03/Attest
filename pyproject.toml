@@ -1,0 +1,46 @@
+[project]
+name = "attest"
+version = "0.1.0"
+description = "A document extraction system that knows when it is wrong."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [{ name = "Harsh Kumar" }]
+
+dependencies = [
+    "pydantic>=2",
+    "fastapi",
+    "uvicorn[standard]",
+    "sqlalchemy>=2",
+    "pymysql",
+    "pyyaml",
+    "pypdfium2",
+    "opencv-python-headless",
+    "langgraph",
+    "gradio",
+]
+
+[project.optional-dependencies]
+train = [
+    "torch",
+    "transformers",
+    "peft",
+    "trl",
+    "bitsandbytes",
+    "accelerate",
+    "wandb",
+]
+serve = [
+    "vllm",
+]
+dev = [
+    "pytest",
+    "ruff",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]

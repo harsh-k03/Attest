@@ -1,0 +1,33 @@
+# Validation rules for schema: invoice
+# See docs/ARCHITECTURE.md §3 (C5) and §6 for the categories these implement.
+schema: invoice
+rules:
+  - name: items_sum_to_subtotal
+    category: arithmetic
+    description: "sum(line_items.amount) == subtotal"
+    fields: [line_items, subtotal]
+
+  - name: total_reconciles
+    category: arithmetic
+    description: "subtotal + tax - discount == total"
+    fields: [subtotal, tax, discount, total]
+
+  - name: invoice_number_matches_pattern
+    category: format
+    description: "invoice_number matches the resolved vendor's invoice_pattern"
+    fields: [invoice_number, vendor_name]
+
+  - name: due_after_issue
+    category: cross-field
+    description: "due_date >= issue_date"
+    fields: [issue_date, due_date]
+
+  - name: tax_rate_in_band
+    category: cross-field
+    description: "tax / subtotal falls within a permitted rate band"
+    fields: [subtotal, tax]
+
+  - name: vendor_resolves
+    category: referential
+    description: "vendor_name fuzzily resolves against the vendors table"
+    fields: [vendor_name]

@@ -1,0 +1,28 @@
+# Validation rules for schema: receipt
+# See docs/ARCHITECTURE.md §3 (C5) and §6 for the categories these implement.
+schema: receipt
+rules:
+  - name: items_sum_to_subtotal
+    category: arithmetic
+    description: "sum(line_items.amount) == subtotal"
+    fields: [line_items, subtotal]
+
+  - name: total_reconciles
+    category: arithmetic
+    description: "subtotal + tax - discount == total"
+    fields: [subtotal, tax, discount, total]
+
+  - name: amounts_two_decimals
+    category: format
+    description: "all currency amounts have <= 2 decimal places"
+    fields: [subtotal, tax, discount, total]
+
+  - name: date_not_future
+    category: format
+    description: "transaction_date parses and is not in the future"
+    fields: [transaction_date]
+
+  - name: vendor_resolves
+    category: referential
+    description: "vendor_name fuzzily resolves against the vendors table"
+    fields: [vendor_name]

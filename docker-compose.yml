@@ -1,0 +1,71 @@
+networks:
+  attest-net:
+
+volumes:
+  mysql-data:
+  ollama-data:
+
+services:
+  mysql:
+    image: mysql:8
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: attest
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-changeme}
+      MYSQL_USER: ${MYSQL_USER:-attest}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-changeme}
+    volumes:
+      - mysql-data:/var/lib/mysql
+      # DDL from docs/ARCHITECTURE.md §6 — mirrored into a migration file
+      # under src/attest/store/migrations/ once that lands.
+    ports:
+      - "3306:3306"
+    networks: [attest-net]
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ollama:
+    image: ollama/ollama:latest
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+    ports:
+      - "11434:11434"
+    networks: [attest-net]
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      DATABASE_URL: mysql+pymysql://${MYSQL_USER:-attest}:${MYSQL_PASSWORD:-changeme}@mysql:3306/attest
+      OLLAMA_HOST: http://ollama:11434
+    ports:
+      - "8000:8000"
+    networks: [attest-net]
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["python", "-m", "attest.ui.app"]
+    restart: unless-stopped
+    depends_on: [api]
+    environment:
+      ATTEST_API_URL: http://api:8000
+    ports:
+      - "7860:7860"
+    networks: [attest-net]
+
+# NOTE: this compose file is the Week 5 target described in
+# docs/ARCHITECTURE.md (§10, §11). A Dockerfile and the vLLM extractor
+# service land alongside it as the corresponding components are built.

@@ -1,0 +1,29 @@
+   # --- Python ---
+   __pycache__/
+   *.py[cod]
+   *.egg-info/
+   build/
+   dist/
+
+   # --- Virtual environment ---
+   .venv/
+
+   # --- Tooling caches ---
+   .pytest_cache/
+   .ruff_cache/
+   .ipynb_checkpoints/
+
+   # --- Secrets ---
+   .env
+
+   # --- Data & model artifacts (too big for git; downloaded or regenerated) ---
+   /data/
+   /checkpoints/
+   *.safetensors
+   *.bin
+   *.pt
+   wandb/
+
+   # --- Editor / OS ---
+   .vscode/
+   .DS_Store
